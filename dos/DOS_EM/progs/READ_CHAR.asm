@@ -16,6 +16,10 @@
 PUBLIC READ_CHAR
 READ_CHAR PROC NEAR
  ; Insert your code here
+
+mov AH, 8
+int 21h
+
  RET
 
 READ_CHAR ENDP 

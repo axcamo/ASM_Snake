@@ -17,5 +17,10 @@
 PUBLIC PRINT_CHAR_ATTR
 PRINT_CHAR_ATTR PROC NEAR
  ; Insert your code here
+
+mov BH, 0
+mov AH, 9
+int 10h
+
  RET
 PRINT_CHAR_ATTR ENDP 

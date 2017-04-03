@@ -15,6 +15,10 @@
 PUBLIC READ_SCREEN_CHAR
 READ_SCREEN_CHAR PROC NEAR
  ; Insert your code here
- RET
+ 
+mov AH, 8
+int 10h
+
+RET
 
 READ_SCREEN_CHAR ENDP 
