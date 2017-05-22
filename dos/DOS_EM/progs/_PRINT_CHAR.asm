@@ -15,5 +15,9 @@
 PUBLIC PRINT_CHAR
 PRINT_CHAR PROC NEAR
  ; Insert your code here
+
+MOV AH, 2
+int 21h
+
  RET
 PRINT_CHAR ENDP 
