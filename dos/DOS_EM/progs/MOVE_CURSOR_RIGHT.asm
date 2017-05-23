@@ -7,7 +7,7 @@
 ; Returns:
 ; -
 ; Modifies:
-; -
+; -AH: HAS REACHED END OF LINE (BOOL)
 ; Uses:
 ; SCREEN_MAX_COLS
 ; Calls:
@@ -23,9 +23,14 @@ CMP DH, SCREEN_MAX_COLS
 JNZ IF_NO_ZERO
 JMP END
 
+IF_ZERO:
+	MOV AH, 0
+	JMP END
 IF_NO_ZERO:
+	MOV AH, 1
 	ADD DH, 1
 	CALL SET_CURSOR_PROP
+	JMP END	
 
 END:
 
