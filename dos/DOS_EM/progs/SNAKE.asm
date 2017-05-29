@@ -272,6 +272,10 @@ UPDATE_CURSOR:
 	CMP DL, FIELD_C2
 	JZ FILL
 
+	; - Start Random -
+
+	; - End Random -
+
 	JMP UPDATE_X
 UPDATE_X:
 	CMP DH, FIELD_R2
