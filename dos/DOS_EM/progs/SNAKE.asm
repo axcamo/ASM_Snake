@@ -1,5 +1,5 @@
 ; *************************************************************************
-; Our data section. Here we declare our strings for our console message
+; CONSTANTS
 ; *************************************************************************
 
 SGROUP 		GROUP 	CODE_SEG, DATA_SEG
@@ -35,7 +35,7 @@ SGROUP 		GROUP 	CODE_SEG, DATA_SEG
     FIELD_C2 EQU SCREEN_MAX_COLS-2
 
 ; *************************************************************************
-; Our executable assembly code starts here in the .code section
+; CODE
 ; *************************************************************************
 CODE_SEG	SEGMENT PUBLIC
 			ORG 100h
@@ -250,45 +250,45 @@ DRAW_FIELD PROC NEAR
     MOV AL, ASCII_FIELD
     MOV BL, ATTR_FIELD
     
-    ;Coordenadas para imprimir margen superior
+    ;Top
     MOV DH, FIELD_R2
     MOV DL, FIELD_C1
-    pared_superior: 
+    TOP: 
     CALL MOVE_CURSOR                 
     CALL PRINT_CHAR_ATTR
     SUB DH, 1
     CMP DH, FIELD_R1
-    JG pared_superior
+    JG TOP
     
-    ;Coordenadas para imprimir margen derecha
+    ;Right
     MOV DH, FIELD_R2
     MOV DL, FIELD_C2
-    pared_derecha: 
+    RIGHT: 
     CALL MOVE_CURSOR
     CALL PRINT_CHAR_ATTR
     SUB DL, 1
     CMP DL, FIELD_C1
-    JG pared_derecha
+    JG RIGHT
 
-    ;Coordenadas para imprimir margen izquierda
+    ;Left
     MOV DH, FIELD_R1
     MOV DL, FIELD_C2
-    pared_izquierda: 
+    LEFT: 
     CALL MOVE_CURSOR
     CALL PRINT_CHAR_ATTR
     SUB DL, 1
     CMP DL, FIELD_C1
-    JG pared_izquierda
+    JG LEFT
     
-    ;Coordenadas para imprimir margen inferior
+    ;Bottom
     MOV DH, FIELD_R2
     MOV DL, FIELD_C2
-    pared_inferior: 
+    BOTTOM: 
     CALL MOVE_CURSOR 
     CALL PRINT_CHAR_ATTR
     SUB DH, 1
     CMP DH, FIELD_R1
-    JG pared_inferior
+    JG BOTTOM
 
     ;esquina superior
     MOV DH, FIELD_R1
@@ -463,7 +463,7 @@ HIDE_CURSOR PROC NEAR
       PUSH CX
       
       MOV AH, 1
-      MOV CX, 02607h  ; BIT 5 OF CH = 1 MEANS HIDE CURSOR
+      MOV CX, 2607h  ; Invisible Cursor
       INT 10h
 
       POP CX
@@ -492,7 +492,7 @@ SHOW_CURSOR PROC NEAR
     PUSH CX
       
     MOV AH, 1
-    MOV CX, 00607h
+    MOV CX, 0607h ; Normal Cursor
     INT 10h
 
     POP CX
@@ -523,7 +523,7 @@ GET_CURSOR_PROP PROC NEAR
       PUSH BX
 
       MOV AH, 3
-      XOR BX, BX
+      XOR BX, BX ; Less consuming than MOV BX, 0
       INT 10h
 
       POP BX
@@ -609,16 +609,19 @@ PUBLIC  MOVE_CURSOR_RIGHT
 MOVE_CURSOR_RIGHT PROC NEAR
 
     PUSH AX
-	;push dx
+
     CALL GET_CURSOR_PROP
     CMP DH, SCREEN_MAX_COLS
-    je final_columnas
-    INC DH
-    final_columnas: MOV AH, 2
+    JE REACHED_END
+
+    INC DH ; Equals to ADD DH, 1
+
+    REACHED_END: 
+	MOV AH, 2
     INT 10h
 
     CALL SET_CURSOR_PROP
-	;pop dx
+
     POP AX
     
     RET
@@ -681,7 +684,7 @@ PRINT_SCORE_STRING PROC NEAR
     MOV DL, FIELD_C1
     CALL SET_CURSOR_PROP
 
-    LEA DX, SCORE_STR
+    LEA DX, SCORE_STR ; Sets DX to SCORE_STR's address
     CALL PRINT_STRING
 
     POP DX  
@@ -708,9 +711,9 @@ PUBLIC PRINT_PLAY_AGAIN_STRING
 PRINT_PLAY_AGAIN_STRING PROC NEAR
 
     PUSH DX
-	;guarda en dx la linea
+
     LEA DX, PLAY_AGAIN_STR 
-	;llamamos a la funcion con dx modificado
+
     CALL PRINT_STRING 
     POP DX
     
