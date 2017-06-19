@@ -520,7 +520,7 @@ GET_CURSOR_PROP PROC NEAR
       PUSH BX
 
       MOV AH, 3
-      XOR BX, BX ; Less consuming than MOV BX, 0
+      XOR BX, BX
       INT 10h
 
       POP BX
