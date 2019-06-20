@@ -5,12 +5,16 @@
 SGROUP 		GROUP 	CODE_SEG, DATA_SEG
 			ASSUME 	CS:SGROUP, DS:SGROUP, SS:SGROUP
 
+
+
+
 ; EXTENDED ASCII CODES
     ASCII_LEFT     EQU 04Bh
     ASCII_RIGHT    EQU 04Dh
     ASCII_UP       EQU 048h
     ASCII_DOWN     EQU 050h
     ASCII_QUIT     EQU 071h ; 'q'
+    ASCII_ENTER    EQU Bh
 
 ; ASCII / ATTR CODES TO DRAW THE SNAKE
     ASCII_SNAKE     EQU 02Ah
@@ -90,8 +94,40 @@ MAIN 	PROC 	NEAR
       JZ UP_KEY
       CMP AL, ASCII_DOWN
       JZ DOWN_KEY
+
+      CMP AL, ASCII_ENTER
+      JZ REVEAL_VALUE
       
       JMP MAIN_LOOP
+
+  REVEAL_VALUE:
+      CALL GET_CURSOR_PROP
+      ; DH - ROW
+      ; DL - COL
+      PUSH AX
+      PUSH BX
+      PUSH CX
+      MOV AL, DH
+      MOV BL, DL
+      MUL BL
+      MOV AH, AL
+      INT 21h
+
+      MOV CX, AX
+      L1:
+
+      inc si
+
+      loop L1
+      
+      MOV SI, OFFSET CASELLA
+      MOV AL, [SI]
+
+      POP AX
+      POP BX
+      POP CX
+      CALL PRINT_CHAR_ATTR
+      JMP END_KEY
 
   RIGHT_KEY:
       MOV [INC_COL], 1
@@ -249,12 +285,26 @@ DRAW_FIELD PROC NEAR
     PUSH DX
 
 MOV AL, ASCII_FIELD
+;MOV AL, ROW_0[1]
 MOV BL, ATTR_FIELD
 
 MOV DH, FIELD_R1
 MOV DL, FIELD_C1
 
 ; LABELS
+
+WRITE_GRID:
+
+    
+    ;PUSH CX
+    ;mov BH, 00
+    ;MOV CX, 01
+    ;MOV AH, 09
+    ;INT 10h
+    ;POP CX
+
+    ;CALL READ_SCREEN_CHAR
+
 
 FILL:
 	CALL MOVE_CURSOR
@@ -274,9 +324,13 @@ UPDATE_CURSOR:
 
 
       ; Comprovar si hi ha caselles ja descobertes
-      ;CALL READ_SCREEN_CHAR
-      ;CMP AH, ASCII_FIELD
-      JMP FILL
+      CALL READ_SCREEN_CHAR
+
+      CMP AH, 32 ; Espai buit
+      JZ FILL
+
+      CMP AH, ASCII_FIELD
+      JZ FILL
 
       
       ; -----
@@ -333,6 +387,7 @@ PRINT_SNAKE PROC NEAR
     PUSH AX
     PUSH BX
     MOV AL, ASCII_SNAKE
+    ;MOV AL, ROW_0[1]
     MOV BL, ATTR_SNAKE
     CALL PRINT_CHAR_ATTR
     POP AX
@@ -964,6 +1019,9 @@ DATA_SEG	SEGMENT	PUBLIC
     ; (INC_ROW. INC_COL) may be (-1, 0, 1), and determine the direction of movement of the snake
     INC_ROW DB 0    
     INC_COL DB 0
+
+    ; VALORS DE LA TAULA 5X5
+    CASELLA DB 48, 49, 50, 51, 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
     NUM_TILES DW 0              ; SNAKE LENGTH
     NUM_TILES_INC_SPEED DB 20   ; THE SPEED IS INCREASED EVERY 'NUM_TILES_INC_SPEED'
